@@ -1,0 +1,6 @@
+apiVersion: networking.metalnet.ironcore.dev/v1alpha1
+kind: Network
+metadata:
+  name: network-sample
+spec:
+  id: 123

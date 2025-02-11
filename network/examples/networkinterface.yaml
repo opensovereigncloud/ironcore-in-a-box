@@ -1,0 +1,12 @@
+apiVersion: networking.metalnet.ironcore.dev/v1alpha1
+kind: NetworkInterface
+metadata:
+  name: networkinterface-sample
+spec:
+  ipFamilies:
+    - "IPv4"
+  ips:
+    - 10.0.0.2
+  nodeName: kind-control-plane
+  networkRef:
+    name: network-sample
