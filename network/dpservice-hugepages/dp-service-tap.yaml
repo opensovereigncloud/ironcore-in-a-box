@@ -21,8 +21,7 @@ spec:
         - "-l"
         - "0,1"
         - "--log-level=user*:8"
-        - "--no-huge"
-        - "-m 2048"
+        - "--huge-unlink"
         - "--no-pci"
         - "--vdev=net_tap0,iface=dtap0,mac=22:22:22:22:22:00"
         - "--vdev=net_tap1,iface=dtap1,mac=22:22:22:22:22:01"
@@ -46,22 +45,10 @@ spec:
         - "--no-stats"
         - "--color=auto"
         - "--no-offload"
-        # Add resource limits and requests
-        resources:
-          requests:
-            memory: "2Gi"
-            hugepages-1Gi: 4Gi
-            $patch: delete
-            cpu: "2"
-          limits:
-            memory: "4Gi"
-            hugepages-1Gi: 4Gi
-            $patch: delete
-            cpu: "2"
         volumeMounts:
         # Preserve the hugepages mount
         - name: hugepages
-          $patch: delete
+          mountPath: /dev
         # Remove the "temp" mount
         - name: temp
           $patch: delete
