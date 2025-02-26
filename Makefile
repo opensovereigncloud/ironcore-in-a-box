@@ -42,8 +42,17 @@ network-examples: kind
 
 install-libvirtd: kind ## Install libvirtd on the kind nodes
 	$(KIND) get nodes | xargs -I {} docker exec {} bash -c "\
+		sed -i 's/UID_MAX.*/UID_MAX 65536/' /etc/login.defs && \
+		sed -i 's/#SYS_UID_MAX.*/SYS_UID_MAX 65536/' /etc/login.defs && \
+		sed -i 's/SUB_UID_MIN.*/SUB_UID_MIN 1/' /etc/login.defs && \
+		sed -i 's/SUB_UID_COUNT.*/SUB_UID_COUNT 100/' /etc/login.defs && \
+		sed -i 's/SYS_UID_MAX.*/SYS_UID_MAX 65536/' /etc/login.defs && \
+		sed -i '/exit 101/d' /usr/sbin/policy-rc.d && \
 		apt-get update && \
-		apt-get install -y libvirt-daemon libvirt-clients"
+		apt-get install -y libvirt-daemon libvirt-clients qemu-kvm libvirt-daemon-system virtinst ceph-common && \
+		systemctl restart libvirtd && \
+		systemctl restart virtlogd.service && \
+		systemctl restart virtlockd.service "
 
 delete-network-examples: kind
 	$(KUBECTL) delete -f network/examples/network.yaml
