@@ -16,7 +16,7 @@ spec:
       hostNetwork: true
       containers:
       - name: metalbond-client
-        image: ghcr.io/ironcore-dev/metalbond:sha-fa316e8
+        image: ghcr.io/ironcore-dev/metalbond:v0.3.6
         securityContext: # so it can add routes
           capabilities:
             add:
@@ -30,7 +30,15 @@ spec:
           - "--subscribe"
           - "100"
           - "--install-routes=100#254"
-          - "--arp-spoof-interface"
+      - name: metalbond-arp
+        image: ghcr.io/ironcore-dev/metalbond:v0.3.6
+        securityContext: # so it can capture on interfaces
+          capabilities:
+            add:
+              - NET_ADMIN
+        command:
+          - "spoofer"
+          - "--interface"
           - "eth0"
-          - "--arp-spoof-ip-prefix"
+          - "--ip-prefix"
           - "172.18.1.0/24"
