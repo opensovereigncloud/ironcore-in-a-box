@@ -50,6 +50,13 @@ This command will:
 1.  Create a local kind cluster (if it doesn't exist).
 2.  Deploy the IronCore stack components into the cluster.
 
+## Examples
+
+You can find examples of how to use the IronCore API in the [Examples](examples/) directory. You can spin up a VM in a [VPC / Overlay Network](https://en.wikipedia.org/wiki/Virtual_private_cloud) with a virtual IP
+and using ignition and that virtual ip, you can log into it.
+
+Your local "datacenter" is at your fingertips to test. Ironcore API documentation can be found [here](https://ironcore-dev.github.io/ironcore/api-reference/overview/) which shows the whole capabilities of IronCore.
+
 ## Cleanup
 
 To remove the kind cluster and all deployed resources, run:
