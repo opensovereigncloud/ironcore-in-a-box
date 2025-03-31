@@ -28,7 +28,7 @@ ip route add default via 172.18.0.1 dev eth0 table 100
 ip rule add fwmark 1 lookup 100
 
 # Add IPv6 route with retry mechanism
-for i in {1..3}; do
+for i in {1..10}; do
     ip -6 route add 2001:db8:fefe::/48 via fe80::1 dev dtap0 && break || \
     { echo "Retrying route addition in 1s..."; sleep 1; }
 done
