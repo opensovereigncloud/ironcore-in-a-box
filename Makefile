@@ -113,7 +113,9 @@ unprepare: kubectl ## Unprepare the environment
 ##@ Dependencies
 
 ## Location to install dependencies to
-LOCALBIN ?= $(shell pwd)/bin
+LOCALDIR ?= $(shell pwd)
+LOCALBIN ?= $(LOCALDIR)/bin
+LOCALBATS ?= $(LOCALDIR)/.bats
 $(LOCALBIN):
 	mkdir -p $(LOCALBIN)
 
@@ -124,7 +126,9 @@ CURL_RETRIES=3
 KUBECTL ?= $(LOCALBIN)/kubectl-$(KUBECTL_VERSION)
 KUBECTL_BIN ?= $(LOCALBIN)/kubectl
 KIND ?= $(LOCALBIN)/kind-$(KIND_VERSION)
+KIND_BIN ?= $(LOCALBIN)/kind
 CMCTL ?= $(LOCALBIN)/cmctl-$(CMCTL_VERSION)
+BATS ?= $(LOCALDIR)/.bats/bats-core/bin/bats
 CRE ?= $(shell if cre=$$(command -v docker); then echo $$cre; elif cre=$$(command -v podman); then echo $$cre; fi)
 ifeq ($(CRE),)
 $(error no docker or podman found, exiting...)
@@ -143,7 +147,8 @@ $(CMCTL): $(LOCALBIN)
 .PHONY: kind
 kind: $(KIND) ## Download kind locally if necessary.
 $(KIND): $(LOCALBIN)
-	$(call go-install-tool,$(KIND),sigs.k8s.io/kind,$(KIND_VERSION))
+	$(call go-install-tool,$(KIND),sigs.k8s.io/kind,$(KIND_VERSION)); \
+	ln -sf "$(KIND)" "$(KIND_BIN)"
 
 .PHONY: kubectl
 kubectl: $(KUBECTL) ## Download kubectl locally if necessary.
@@ -156,6 +161,24 @@ $(KUBECTL): $(LOCALBIN)
 	else \
 		echo "$(KUBECTL) is already installed."; \
 	fi
+
+.PHONY: check-submodules
+check-submodules:
+	@if git submodule status | grep -q "^-"; then \
+		echo "Submodules missing. Initializing..."; \
+		git submodule update --init --recursive; \
+	fi
+
+.PHONY: test
+test: check-submodules $(KIND) $(KUBECTL)
+	@export PATH=$(LOCALBIN):$(PATH); \
+	export BATS_SOURCES=$(LOCALBATS); \
+	export EXAMPLES=$(LOCALDIR)/examples; \
+	$(BATS) --tap tests/
+
+.PHONY: lint-tests
+lint-tests:
+	@find tests/ -name "*.sh" -o -name "*.bats" | xargs shellcheck && echo "Success."
 
 # go-install-tool will 'go install' any package with custom target and name of binary, if it doesn't exist
 # $1 - target path with name of binary (ideally with version)
